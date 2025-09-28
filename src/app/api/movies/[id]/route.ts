@@ -3,12 +3,10 @@ import dbConnect from '@/lib/db';
 import Movie from '@/models/Movie';
 import { isAuthenticated } from '@/lib/auth';
 
-// The context object's params property is a Promise in the Vercel build environment.
-// This type definition matches the expected signature from the build error log.
 interface Context {
-  params: Promise<{
+  params: {
     id: string;
-  }>;
+  };
 }
 
 // Handler for updating a movie
@@ -20,7 +18,7 @@ export async function PUT(req: NextRequest, context: Context) {
   }
 
   try {
-    const { id } = await context.params; // Await the promise to resolve the params
+    const { id } = context.params;
     const { name, image, link } = await req.json();
 
     if (!name || !image || !link || (Array.isArray(link) && link.length === 0)) {
@@ -53,7 +51,7 @@ export async function DELETE(req: NextRequest, context: Context) {
   }
 
   try {
-    const { id } = await context.params; // Await the promise to resolve the params
+    const { id } = context.params;
     const deletedMovie = await Movie.findByIdAndDelete(id);
 
     if (!deletedMovie) {
