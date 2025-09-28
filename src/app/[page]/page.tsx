@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 
 interface Movie {
   _id: string;
@@ -23,13 +22,11 @@ export default function Page({ params }: PageProps) {
   const [error, setError] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState(1);
 
-  // State for the search input field
   const [searchInputValue, setSearchInputValue] = useState('');
 
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Determine page and search query from URL
   const page = parseInt(params.page || searchParams.get('page') || '1', 10);
   const searchQuery = searchParams.get('q') || '';
 
@@ -51,7 +48,6 @@ export default function Page({ params }: PageProps) {
         setMovies(data.data);
         setTotalPages(data.pagination.totalPages);
       } else {
-        // Provide a more user-friendly message for the fuzzy search configuration error
         if (data.message && data.message.includes('Fuzzy search is not configured')) {
             setError('Fuzzy search is not yet enabled. Please contact the administrator.');
         } else {
@@ -71,7 +67,6 @@ export default function Page({ params }: PageProps) {
 
   useEffect(() => {
     fetchData();
-    // Pre-fill search bar if there's a search query in the URL
     if (searchQuery) {
       setSearchInputValue(searchQuery);
     }
@@ -132,12 +127,12 @@ export default function Page({ params }: PageProps) {
             {movies.map((movie) => (
               <a key={movie._id} href={movie.link[0]} target="_blank" rel="noopener noreferrer" className="block group">
                 <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-lg transition-transform duration-300 group-hover:scale-105">
-                  <Image
+                  {/* Using a standard <img> tag for reliability with external images */}
+                  <img
                     src={movie.image}
                     alt={movie.name}
-                    layout="fill"
-                    objectFit="cover"
-                    className="transition-opacity duration-300 group-hover:opacity-80"
+                    className="absolute h-full w-full object-cover transition-opacity duration-300 group-hover:opacity-80"
+                    loading="lazy" // Add lazy loading for better performance
                   />
                   <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 p-2 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     <p className="font-bold text-white">{movie.name}</p>
