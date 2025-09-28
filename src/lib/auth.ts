@@ -1,7 +1,7 @@
 import { verify } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'default-secret';
+const JWT_SECRET = "a-secure-and-random-secret-for-jwt";
 
 export function isAuthenticated(): boolean {
   const cookieStore = cookies();
