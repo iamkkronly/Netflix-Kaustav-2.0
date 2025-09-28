@@ -14,7 +14,7 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Form state
+  // Form and movie list state
   const [movies, setMovies] = useState<Movie[]>([]);
   const [editingMovieId, setEditingMovieId] = useState<string | null>(null);
   const [movieName, setMovieName] = useState('');
@@ -22,12 +22,17 @@ export default function AdminPage() {
   const [movieLinks, setMovieLinks] = useState('');
   const [message, setMessage] = useState('');
 
-  const fetchMovies = useCallback(async () => {
+  // Pagination state for the admin movie list
+  const [adminCurrentPage, setAdminCurrentPage] = useState(1);
+  const [adminTotalPages, setAdminTotalPages] = useState(1);
+
+  const fetchMovies = useCallback(async (page: number) => {
     try {
-      const res = await fetch('/api/movies?page=1&limit=1000'); // Fetch all movies
+      const res = await fetch(`/api/movies?page=${page}&limit=10`); // Fetch 10 movies per page
       const data = await res.json();
       if (data.success) {
         setMovies(data.data);
+        setAdminTotalPages(data.pagination.totalPages);
       }
     } catch (error) {
       console.error("Failed to fetch movies:", error);
@@ -36,12 +41,18 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
+    if (isAuthenticated) {
+      fetchMovies(adminCurrentPage);
+    }
+  }, [isAuthenticated, adminCurrentPage, fetchMovies]);
+
+  // Initial auth check
+  useEffect(() => {
     if (document.cookie.includes('auth_token')) {
       setIsAuthenticated(true);
-      fetchMovies();
     }
     setIsLoading(false);
-  }, [fetchMovies]);
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +64,6 @@ export default function AdminPage() {
     const data = await res.json();
     if (res.ok && data.success) {
       setIsAuthenticated(true);
-      fetchMovies();
     } else {
       setMessage(data.message || 'Login failed');
     }
@@ -82,7 +92,7 @@ export default function AdminPage() {
     if (data.success) {
       setMessage(editingMovieId ? 'Movie updated successfully!' : 'Movie added successfully!');
       resetForm();
-      fetchMovies();
+      fetchMovies(adminCurrentPage); // Re-fetch movies on the current page
     } else {
       setMessage(`Error: ${data.message}`);
     }
@@ -102,7 +112,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) {
         setMessage('Movie deleted successfully!');
-        fetchMovies();
+        fetchMovies(adminCurrentPage); // Re-fetch movies on the current page
       } else {
         setMessage(`Error: ${data.message}`);
       }
@@ -114,6 +124,12 @@ export default function AdminPage() {
     setMovieName('');
     setImageLink('');
     setMovieLinks('');
+  };
+
+  const handleAdminPageChange = (newPage: number) => {
+    if (newPage > 0 && newPage <= adminTotalPages) {
+      setAdminCurrentPage(newPage);
+    }
   };
 
   if (isLoading) {
@@ -181,6 +197,20 @@ export default function AdminPage() {
               </div>
             ))}
           </div>
+
+          {adminTotalPages > 1 && (
+            <div className="mt-8 flex items-center justify-center">
+              <button onClick={() => handleAdminPageChange(adminCurrentPage - 1)} disabled={adminCurrentPage <= 1} className="mx-1 rounded-md bg-red-600 px-4 py-2 text-sm font-bold text-white disabled:bg-gray-600">
+                Previous
+              </button>
+              <span className="px-4 py-2 text-sm">
+                Page {adminCurrentPage} of {adminTotalPages}
+              </span>
+              <button onClick={() => handleAdminPageChange(adminCurrentPage + 1)} disabled={adminCurrentPage >= adminTotalPages} className="mx-1 rounded-md bg-red-600 px-4 py-2 text-sm font-bold text-white disabled:bg-gray-600">
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
