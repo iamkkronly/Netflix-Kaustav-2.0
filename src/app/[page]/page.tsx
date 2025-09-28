@@ -85,26 +85,26 @@ export default function Page({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <header className="sticky top-0 z-50 bg-gray-800/80 p-4 shadow-lg backdrop-blur-md">
-        <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-red-600">MovieFlix</h1>
-          <form onSubmit={handleSearch} className="flex items-center">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
+          <h1 className="text-2xl font-bold text-red-600 sm:text-3xl">MovieFlix</h1>
+          <form onSubmit={handleSearch} className="flex w-full items-center sm:w-auto">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search for a movie..."
-              className="px-4 py-2 text-white bg-gray-700 rounded-l-md focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="w-full rounded-l-md bg-gray-700 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
             />
-            <button type="submit" className="px-4 py-2 font-bold text-white bg-red-600 rounded-r-md hover:bg-red-700">
+            <button type="submit" className="rounded-r-md bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-700">
               Search
             </button>
           </form>
         </div>
       </header>
 
-      <main className="p-4 sm:p-6 lg:p-8">
+      <main className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
         {loading ? (
-          <div className="flex justify-center items-center h-64">
+          <div className="flex h-64 items-center justify-center">
             <p className="text-xl">Loading...</p>
           </div>
         ) : error ? (
@@ -116,10 +116,10 @@ export default function Page({ params }: PageProps) {
             <p>No movies found.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
             {movies.map((movie) => (
               <a key={movie._id} href={movie.link[0]} target="_blank" rel="noopener noreferrer" className="block group">
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden transition-transform duration-300 transform group-hover:scale-105">
+                <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-lg transition-transform duration-300 group-hover:scale-105">
                   <Image
                     src={movie.image}
                     alt={movie.name}
@@ -127,8 +127,8 @@ export default function Page({ params }: PageProps) {
                     objectFit="cover"
                     className="transition-opacity duration-300 group-hover:opacity-80"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <p className="text-white text-center font-bold p-2">{movie.name}</p>
+                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 p-2 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <p className="font-bold text-white">{movie.name}</p>
                   </div>
                 </div>
               </a>
@@ -137,21 +137,21 @@ export default function Page({ params }: PageProps) {
         )}
 
         {!searchTerm.trim() && totalPages > 1 && (
-          <div className="flex justify-center items-center mt-8">
+          <div className="mt-8 flex items-center justify-center">
             <button
               onClick={() => handlePageChange(page - 1)}
               disabled={page <= 1}
-              className="px-4 py-2 mx-1 font-bold text-white bg-red-600 rounded-md disabled:bg-gray-500"
+              className="mx-1 rounded-md bg-red-600 px-4 py-2 text-sm font-bold text-white disabled:bg-gray-600"
             >
               Previous
             </button>
-            <span className="px-4 py-2">
+            <span className="px-4 py-2 text-sm">
               Page {page} of {totalPages}
             </span>
             <button
               onClick={() => handlePageChange(page + 1)}
               disabled={page >= totalPages}
-              className="px-4 py-2 mx-1 font-bold text-white bg-red-600 rounded-md disabled:bg-gray-500"
+              className="mx-1 rounded-md bg-red-600 px-4 py-2 text-sm font-bold text-white disabled:bg-gray-600"
             >
               Next
             </button>
