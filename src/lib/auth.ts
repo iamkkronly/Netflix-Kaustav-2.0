@@ -1,11 +1,10 @@
 import { verify } from 'jsonwebtoken';
-import { cookies } from 'next/headers';
+import { NextRequest } from 'next/server';
 
 const JWT_SECRET = "a-secure-and-random-secret-for-jwt";
 
-export function isAuthenticated(): boolean {
-  const cookieStore = cookies();
-  const token = cookieStore.get('auth_token')?.value;
+export function isAuthenticated(req: NextRequest): boolean {
+  const token = req.cookies.get('auth_token')?.value;
 
   if (!token) {
     return false;
