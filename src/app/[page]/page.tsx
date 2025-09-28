@@ -125,15 +125,15 @@ export default function Page({ params }: PageProps) {
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
             {movies.map((movie) => (
-              <a key={movie._id} href={movie.link[0]} target="_blank" rel="noopener noreferrer" className="block group relative">
-                <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-lg">
+              <a key={movie._id} href={movie.link[0]} target="_blank" rel="noopener noreferrer" className="block group">
+                <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-lg bg-gray-800">
                   <img
                     src={movie.image}
                     alt={movie.name}
                     className="absolute h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-black/40 flex items-end p-2">
+                  <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/80 to-transparent p-2">
                     <p className="font-bold text-white text-sm leading-tight truncate">{movie.name}</p>
                   </div>
                 </div>
