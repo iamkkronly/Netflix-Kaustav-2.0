@@ -8,7 +8,7 @@ interface Movie {
   _id: string;
   name: string;
   image: string;
-  link: string[]; // Updated to handle multiple links
+  link: string[];
 }
 
 interface PageProps {
@@ -84,8 +84,8 @@ export default function Page({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <header className="bg-gray-800 p-4 shadow-lg">
-        <div className="container mx-auto flex justify-between items-center">
+      <header className="sticky top-0 z-50 bg-gray-800/80 p-4 shadow-lg backdrop-blur-md">
+        <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-red-600">MovieFlix</h1>
           <form onSubmit={handleSearch} className="flex items-center">
             <input
@@ -102,7 +102,7 @@ export default function Page({ params }: PageProps) {
         </div>
       </header>
 
-      <main className="container mx-auto p-4 sm:p-6 lg:p-8">
+      <main className="p-4 sm:p-6 lg:p-8">
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <p className="text-xl">Loading...</p>
@@ -116,7 +116,7 @@ export default function Page({ params }: PageProps) {
             <p>No movies found.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4">
             {movies.map((movie) => (
               <a key={movie._id} href={movie.link[0]} target="_blank" rel="noopener noreferrer" className="block group">
                 <div className="relative aspect-[2/3] rounded-lg overflow-hidden transition-transform duration-300 transform group-hover:scale-105">
