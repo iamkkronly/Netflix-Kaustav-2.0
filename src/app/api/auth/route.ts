@@ -2,16 +2,12 @@ import { sign } from 'jsonwebtoken';
 import { serialize } from 'cookie';
 import { NextRequest, NextResponse } from 'next/server';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'default-secret'; // Use a strong, unique secret in production
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const JWT_SECRET = "a-secure-and-random-secret-for-jwt";
+const ADMIN_PASSWORD = "abd123abd";
 
 export async function POST(req: NextRequest) {
   try {
     const { password } = await req.json();
-
-    if (!ADMIN_PASSWORD) {
-      return NextResponse.json({ success: false, message: 'Admin password is not configured.' }, { status: 500 });
-    }
 
     if (password === ADMIN_PASSWORD) {
       const token = sign({ admin: true }, JWT_SECRET, { expiresIn: '1h' });
