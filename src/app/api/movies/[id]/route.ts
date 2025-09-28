@@ -3,14 +3,14 @@ import dbConnect from '@/lib/db';
 import Movie from '@/models/Movie';
 import { isAuthenticated } from '@/lib/auth';
 
-interface Params {
+interface Context {
   params: {
     id: string;
   };
 }
 
 // Handler for updating a movie
-export async function PUT(req: NextRequest, { params }: Params) {
+export async function PUT(req: NextRequest, context: Context) {
   await dbConnect();
 
   if (!isAuthenticated(req)) {
@@ -18,7 +18,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
   }
 
   try {
-    const { id } = params;
+    const { id } = context.params;
     const { name, image, link } = await req.json();
 
     if (!name || !image || !link || (Array.isArray(link) && link.length === 0)) {
@@ -43,7 +43,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
 }
 
 // Handler for deleting a movie
-export async function DELETE(req: NextRequest, { params }: Params) {
+export async function DELETE(req: NextRequest, context: Context) {
   await dbConnect();
 
   if (!isAuthenticated(req)) {
@@ -51,7 +51,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
   }
 
   try {
-    const { id } = params;
+    const { id } = context.params;
     const deletedMovie = await Movie.findByIdAndDelete(id);
 
     if (!deletedMovie) {
