@@ -3,14 +3,16 @@ import dbConnect from '@/lib/db';
 import Movie from '@/models/Movie';
 import { isAuthenticated } from '@/lib/auth';
 
-interface Context {
-  params: {
+// This type definition is specifically tailored to handle the Vercel build environment,
+// which treats the context's params object as a Promise.
+interface VercelContext {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 // Handler for updating a movie
-export async function PUT(req: NextRequest, context: Context) {
+export async function PUT(req: NextRequest, context: VercelContext) {
   await dbConnect();
 
   if (!isAuthenticated(req)) {
@@ -18,7 +20,7 @@ export async function PUT(req: NextRequest, context: Context) {
   }
 
   try {
-    const { id } = context.params;
+    const { id } = await context.params; // Await the promise to get the route parameters.
     const { name, image, link } = await req.json();
 
     if (!name || !image || !link || (Array.isArray(link) && link.length === 0)) {
@@ -43,7 +45,7 @@ export async function PUT(req: NextRequest, context: Context) {
 }
 
 // Handler for deleting a movie
-export async function DELETE(req: NextRequest, context: Context) {
+export async function DELETE(req: NextRequest, context: VercelContext) {
   await dbConnect();
 
   if (!isAuthenticated(req)) {
@@ -51,7 +53,7 @@ export async function DELETE(req: NextRequest, context: Context) {
   }
 
   try {
-    const { id } = context.params;
+    const { id } = await context.params; // Await the promise to get the route parameters.
     const deletedMovie = await Movie.findByIdAndDelete(id);
 
     if (!deletedMovie) {
