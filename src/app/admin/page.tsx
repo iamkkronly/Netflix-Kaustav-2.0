@@ -22,36 +22,52 @@ export default function AdminPage() {
   const [movieLinks, setMovieLinks] = useState('');
   const [message, setMessage] = useState('');
 
-  // Pagination state for the admin movie list
+  // Search and Pagination state
+  const [searchQuery, setSearchQuery] = useState('');
   const [adminCurrentPage, setAdminCurrentPage] = useState(1);
   const [adminTotalPages, setAdminTotalPages] = useState(1);
 
-  const fetchMovies = useCallback(async (page: number) => {
+  const fetchMovies = useCallback(async (page: number, query: string) => {
+    setIsLoading(true);
+    let url = '';
+    if (query) {
+      url = `/api/movies/search?q=${encodeURIComponent(query)}&page=${page}`;
+    } else {
+      url = `/api/movies?page=${page}&limit=10`;
+    }
+
     try {
-      const res = await fetch(`/api/movies?page=${page}&limit=10`); // Fetch 10 movies per page
+      const res = await fetch(url);
       const data = await res.json();
       if (data.success) {
         setMovies(data.data);
         setAdminTotalPages(data.pagination.totalPages);
+      } else {
+        setMovies([]);
+        setAdminTotalPages(1);
+        setMessage(data.message || 'Failed to fetch movies.');
       }
     } catch (error) {
       console.error("Failed to fetch movies:", error);
       setMessage("Failed to load movies.");
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchMovies(adminCurrentPage);
+      fetchMovies(adminCurrentPage, searchQuery);
     }
-  }, [isAuthenticated, adminCurrentPage, fetchMovies]);
+  }, [isAuthenticated, adminCurrentPage, searchQuery, fetchMovies]);
 
   // Initial auth check
   useEffect(() => {
     if (document.cookie.includes('auth_token')) {
       setIsAuthenticated(true);
+    } else {
+        setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -71,28 +87,21 @@ export default function AdminPage() {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
+    // ... (rest of the form submission logic is the same)
     const links = movieLinks.split('\n').map(link => link.trim()).filter(link => link);
     if (links.length === 0) {
       setMessage('Please provide at least one movie link.');
       return;
     }
-
     const movieData = { name: movieName, image: imageLink, link: links };
     const url = editingMovieId ? `/api/movies/${editingMovieId}` : '/api/movies';
     const method = editingMovieId ? 'PUT' : 'POST';
-
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(movieData),
-    });
-
+    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(movieData) });
     const data = await res.json();
     if (data.success) {
       setMessage(editingMovieId ? 'Movie updated successfully!' : 'Movie added successfully!');
       resetForm();
-      fetchMovies(adminCurrentPage); // Re-fetch movies on the current page
+      fetchMovies(adminCurrentPage, searchQuery);
     } else {
       setMessage(`Error: ${data.message}`);
     }
@@ -108,11 +117,12 @@ export default function AdminPage() {
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this movie?')) {
+      // ... (rest of the delete logic is the same)
       const res = await fetch(`/api/movies/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
         setMessage('Movie deleted successfully!');
-        fetchMovies(adminCurrentPage); // Re-fetch movies on the current page
+        fetchMovies(adminCurrentPage, searchQuery);
       } else {
         setMessage(`Error: ${data.message}`);
       }
@@ -132,7 +142,12 @@ export default function AdminPage() {
     }
   };
 
-  if (isLoading) {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+      setAdminCurrentPage(1); // Reset to first page on new search
+  }
+
+  if (isLoading && !isAuthenticated) {
     return <div className="flex min-h-screen items-center justify-center bg-gray-900 text-white">Loading...</div>;
   }
 
@@ -163,29 +178,20 @@ export default function AdminPage() {
             {editingMovieId ? 'Edit Movie' : 'Add New Movie'}
           </h1>
           {message && <p className="mb-4 text-center text-green-400">{message}</p>}
-          <div className="mb-4">
-            <input type="text" value={movieName} onChange={(e) => setMovieName(e.target.value)} placeholder="Movie Name" required className="w-full rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500" />
-          </div>
-          <div className="mb-4">
-            <input type="text" value={imageLink} onChange={(e) => setImageLink(e.target.value)} placeholder="Image Link" required className="w-full rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500" />
-          </div>
-          <div className="mb-6">
-            <textarea value={movieLinks} onChange={(e) => setMovieLinks(e.target.value)} placeholder="Movie Links (one per line)" required rows={4} className="w-full rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500" />
-          </div>
+          <div className="mb-4"><input type="text" value={movieName} onChange={(e) => setMovieName(e.target.value)} placeholder="Movie Name" required className="w-full rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500" /></div>
+          <div className="mb-4"><input type="text" value={imageLink} onChange={(e) => setImageLink(e.target.value)} placeholder="Image Link" required className="w-full rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500" /></div>
+          <div className="mb-6"><textarea value={movieLinks} onChange={(e) => setMovieLinks(e.target.value)} placeholder="Movie Links (one per line)" required rows={4} className="w-full rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500" /></div>
           <div className="flex gap-4">
-            <button type="submit" className="flex-grow rounded-md bg-red-600 px-4 py-3 font-bold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-              {editingMovieId ? 'Update Movie' : 'Add Movie'}
-            </button>
-            {editingMovieId && (
-              <button type="button" onClick={resetForm} className="rounded-md bg-gray-600 px-4 py-3 font-bold text-white hover:bg-gray-500">
-                Cancel
-              </button>
-            )}
+            <button type="submit" className="flex-grow rounded-md bg-red-600 px-4 py-3 font-bold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">{editingMovieId ? 'Update Movie' : 'Add Movie'}</button>
+            {editingMovieId && (<button type="button" onClick={resetForm} className="rounded-md bg-gray-600 px-4 py-3 font-bold text-white hover:bg-gray-500">Cancel</button>)}
           </div>
         </form>
 
         <div className="rounded-lg bg-gray-800 p-6 shadow-xl">
-          <h2 className="mb-4 text-2xl font-bold">Existing Movies</h2>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-2xl font-bold">Existing Movies</h2>
+            <input type="text" placeholder="Search movies..." value={searchQuery} onChange={handleSearchChange} className="rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500" />
+          </div>
           <div className="space-y-4">
             {movies.map((movie) => (
               <div key={movie._id} className="flex items-center justify-between rounded-md bg-gray-700 p-4">
@@ -200,15 +206,9 @@ export default function AdminPage() {
 
           {adminTotalPages > 1 && (
             <div className="mt-8 flex items-center justify-center">
-              <button onClick={() => handleAdminPageChange(adminCurrentPage - 1)} disabled={adminCurrentPage <= 1} className="mx-1 rounded-md bg-red-600 px-4 py-2 text-sm font-bold text-white disabled:bg-gray-600">
-                Previous
-              </button>
-              <span className="px-4 py-2 text-sm">
-                Page {adminCurrentPage} of {adminTotalPages}
-              </span>
-              <button onClick={() => handleAdminPageChange(adminCurrentPage + 1)} disabled={adminCurrentPage >= adminTotalPages} className="mx-1 rounded-md bg-red-600 px-4 py-2 text-sm font-bold text-white disabled:bg-gray-600">
-                Next
-              </button>
+              <button onClick={() => handleAdminPageChange(adminCurrentPage - 1)} disabled={adminCurrentPage <= 1} className="mx-1 rounded-md bg-red-600 px-4 py-2 text-sm font-bold text-white disabled:bg-gray-600">Previous</button>
+              <span className="px-4 py-2 text-sm">Page {adminCurrentPage} of {adminTotalPages}</span>
+              <button onClick={() => handleAdminPageChange(adminCurrentPage + 1)} disabled={adminCurrentPage >= adminTotalPages} className="mx-1 rounded-md bg-red-600 px-4 py-2 text-sm font-bold text-white disabled:bg-gray-600">Next</button>
             </div>
           )}
         </div>
