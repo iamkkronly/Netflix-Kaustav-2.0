@@ -39,7 +39,7 @@ export default function AdminPage() {
   const fetchMovies = useCallback(async (page: number, query: string) => {
     // ... (fetch logic remains the same)
     setIsLoading(true);
-    let url = query ? `/api/movies/search?q=${encodeURIComponent(query)}&page=${page}` : `/api/movies?page=${page}&limit=10`;
+    const url = query ? `/api/movies/search?q=${encodeURIComponent(query)}&page=${page}` : `/api/movies?page=${page}&limit=10`;
     try {
       const res = await fetch(url);
       const data = await res.json();
