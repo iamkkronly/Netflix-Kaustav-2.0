@@ -2,12 +2,18 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link'; // Import the Next.js Link component
 
+// Update the interface to match the new schema with downloadLinks
 interface Movie {
   _id: string;
   name: string;
   image: string;
-  link: string[];
+  downloadLinks: {
+    p480?: string;
+    p720?: string;
+    p1080?: string;
+  };
 }
 
 interface PageProps {
@@ -125,7 +131,7 @@ export default function Page({ params }: PageProps) {
         ) : (
           <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
             {movies.map((movie) => (
-              <a key={movie._id} href={movie.link[0]} target="_blank" rel="noopener noreferrer" className="block group">
+              <Link key={movie._id} href={`/movie/${movie._id}`} className="block group">
                 <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-lg bg-gray-800">
                   <img
                     src={movie.image}
@@ -135,7 +141,7 @@ export default function Page({ params }: PageProps) {
                   />
                 </div>
                 <p className="mt-2 text-sm font-bold text-white line-clamp-2 transition-colors duration-300 group-hover:text-red-400">{movie.name}</p>
-              </a>
+              </Link>
             ))}
           </div>
         )}
