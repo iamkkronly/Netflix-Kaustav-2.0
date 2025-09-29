@@ -3,19 +3,20 @@ import dbConnect from '@/lib/db';
 import Movie from '@/models/Movie';
 import { isAuthenticated } from '@/lib/auth';
 
-// Define the standard context for a dynamic route handler in Next.js
-interface Context {
-  params: {
+// This type definition is specifically tailored to handle the Vercel build environment,
+// which treats the context's params object as a Promise.
+interface VercelContext {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 // Handler for fetching a single movie by its ID
-export async function GET(req: NextRequest, context: Context) {
+export async function GET(req: NextRequest, context: VercelContext) {
   await dbConnect();
 
   try {
-    const { id } = context.params;
+    const { id } = await context.params; // Await the promise to get the route parameters.
     const movie = await Movie.findById(id);
 
     if (!movie) {
@@ -30,7 +31,7 @@ export async function GET(req: NextRequest, context: Context) {
 }
 
 // Handler for updating a movie
-export async function PUT(req: NextRequest, context: Context) {
+export async function PUT(req: NextRequest, context: VercelContext) {
   await dbConnect();
 
   if (!isAuthenticated(req)) {
@@ -38,7 +39,7 @@ export async function PUT(req: NextRequest, context: Context) {
   }
 
   try {
-    const { id } = context.params;
+    const { id } = await context.params; // Await the promise to get the route parameters.
     const { name, image, downloadLinks } = await req.json();
 
     if (!name || !image || !downloadLinks) {
@@ -63,7 +64,7 @@ export async function PUT(req: NextRequest, context: Context) {
 }
 
 // Handler for deleting a movie
-export async function DELETE(req: NextRequest, context: Context) {
+export async function DELETE(req: NextRequest, context: VercelContext) {
   await dbConnect();
 
   if (!isAuthenticated(req)) {
@@ -71,7 +72,7 @@ export async function DELETE(req: NextRequest, context: Context) {
   }
 
   try {
-    const { id } = context.params;
+    const { id } = await context.params; // Await the promise to get the route parameters.
     const deletedMovie = await Movie.findByIdAndDelete(id);
 
     if (!deletedMovie) {
