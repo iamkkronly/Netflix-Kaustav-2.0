@@ -123,7 +123,7 @@ export default function Page({ params }: PageProps) {
             <p>No movies found.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
             {movies.map((movie) => (
               <a key={movie._id} href={movie.link[0]} target="_blank" rel="noopener noreferrer" className="block group">
                 <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-lg bg-gray-800">
@@ -133,10 +133,8 @@ export default function Page({ params }: PageProps) {
                     className="absolute h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/80 to-transparent p-2">
-                    <p className="font-bold text-white text-sm leading-tight line-clamp-2 transition-colors duration-300 group-hover:text-red-400">{movie.name}</p>
-                  </div>
                 </div>
+                <p className="mt-2 text-sm font-bold text-white line-clamp-2 transition-colors duration-300 group-hover:text-red-400">{movie.name}</p>
               </a>
             ))}
           </div>
