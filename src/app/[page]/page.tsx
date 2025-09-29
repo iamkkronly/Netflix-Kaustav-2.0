@@ -134,7 +134,7 @@ export default function Page({ params }: PageProps) {
                     loading="lazy"
                   />
                   <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/80 to-transparent p-2">
-                    <p className="font-bold text-white text-sm leading-tight truncate">{movie.name}</p>
+                    <p className="font-bold text-white text-sm leading-tight line-clamp-2">{movie.name}</p>
                   </div>
                 </div>
               </a>
