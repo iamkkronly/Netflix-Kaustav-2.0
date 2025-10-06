@@ -4,8 +4,8 @@ import Subscription from '../../../models/Subscription';
 import webpush from 'web-push';
 
 const vapidKeys = {
-  publicKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  privateKey: process.env.VAPID_PRIVATE_KEY!,
+  publicKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BNSfVVa7oUnfvYnh7-VXYoeOJ_3YJbswdFkNW7aifp0-qJF86aFXIBVSzDR4_jCZu--eeTC6-GNfG4Gb6LPjcb4',
+  privateKey: process.env.VAPID_PRIVATE_KEY || 'Oalg1Rnf8AeBv2MNaoK-zoCMVmJNOczUd1G8Gji3yo0',
 };
 
 webpush.setVapidDetails(
