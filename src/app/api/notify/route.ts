@@ -9,7 +9,7 @@ const vapidKeys = {
 };
 
 webpush.setVapidDetails(
-  process.env.VAPID_MAILTO!,
+  process.env.VAPID_MAILTO || 'mailto:your_email@example.com',
   vapidKeys.publicKey,
   vapidKeys.privateKey
 );
