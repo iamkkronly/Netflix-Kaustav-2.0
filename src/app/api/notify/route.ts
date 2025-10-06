@@ -22,17 +22,27 @@ export async function POST(req: Request) {
 
     const notificationPayload = JSON.stringify({ title, body });
 
-    const promises = subscriptions.map(sub =>
-      webpush.sendNotification(sub.toObject(), notificationPayload)
+    const promises = subscriptions.map(sub => {
+      const subscriptionObject = sub.toObject();
+
+      // Sanitize the subscription object to include only necessary properties
+      const sanitizedSubscription = {
+        endpoint: subscriptionObject.endpoint,
+        keys: {
+          p256dh: subscriptionObject.keys.p256dh,
+          auth: subscriptionObject.keys.auth,
+        },
+      };
+
+      return webpush.sendNotification(sanitizedSubscription, notificationPayload)
         .catch(err => {
-          if (err.statusCode === 410) {
-            // Subscription is no longer valid, remove from DB
+          if (err.statusCode === 410 || err.statusCode === 404) {
             return Subscription.deleteOne({ _id: sub._id });
           } else {
             console.error('Error sending notification', err);
           }
-        })
-    );
+        });
+    });
 
     await Promise.all(promises);
 
