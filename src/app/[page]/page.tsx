@@ -142,29 +142,6 @@ export default function Page({ params }: PageProps) {
     return outputArray;
   }
 
-  async function subscribeUserToPush(swReg: ServiceWorkerRegistration) {
-    const applicationServerKey = urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!);
-    try {
-        const subscription = await swReg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: applicationServerKey
-        });
-
-        console.log('User is subscribed:', subscription);
-
-        // Send subscription to the backend
-        await fetch('/api/subscribe', {
-            method: 'POST',
-            body: JSON.stringify(subscription),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-    } catch (error) {
-        console.error('Failed to subscribe the user: ', error);
-    }
-  }
-
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchInputValue.trim()) {
