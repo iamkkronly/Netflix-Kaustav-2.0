@@ -78,6 +78,40 @@ export default function Page({ params }: PageProps) {
     }
   }, [fetchData, searchQuery]);
 
+  const subscribeUserToPush = useCallback(async (swReg: ServiceWorkerRegistration) => {
+    const applicationServerKey = urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!);
+    try {
+        const subscription = await swReg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: applicationServerKey
+        });
+
+        console.log('User is subscribed:', subscription);
+
+        // Send subscription to the backend
+        await fetch('/api/subscribe', {
+            method: 'POST',
+            body: JSON.stringify(subscription),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    } catch (error) {
+        console.error('Failed to subscribe the user: ', error);
+    }
+  }, []);
+
+  const requestNotificationPermission = useCallback(async (swReg: ServiceWorkerRegistration) => {
+    const permission = await window.Notification.requestPermission();
+    if (permission === 'granted') {
+      console.log('Notification permission granted.');
+      // Now, subscribe the user
+      subscribeUserToPush(swReg);
+    } else {
+      console.log('Unable to get permission to notify.');
+    }
+  }, [subscribeUserToPush]);
+
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
       navigator.serviceWorker.register('/sw.js')
@@ -91,18 +125,7 @@ export default function Page({ params }: PageProps) {
           console.error('Service Worker Error', error);
         });
     }
-  }, []);
-
-  async function requestNotificationPermission(swReg: ServiceWorkerRegistration) {
-    const permission = await window.Notification.requestPermission();
-    if (permission === 'granted') {
-      console.log('Notification permission granted.');
-      // Now, subscribe the user
-      subscribeUserToPush(swReg);
-    } else {
-      console.log('Unable to get permission to notify.');
-    }
-  }
+  }, [requestNotificationPermission]);
 
   function urlBase64ToUint8Array(base64String: string) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);

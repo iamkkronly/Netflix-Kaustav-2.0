@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, message: 'Subscription saved.' }, { status: 201 });
   } catch (error) {
     console.error('Error saving subscription', error);
-    // @ts-ignore
+    // @ts-expect-error
     if (error.code === 11000) {
       return NextResponse.json({ success: false, message: 'Subscription already exists.' }, { status: 409 });
     }
