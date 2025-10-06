@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link'; // Import the Next.js Link component
+import Image from 'next/image';
 
 // Update the interface to match the new schema with downloadLinks
 interface Movie {
@@ -17,12 +18,13 @@ interface Movie {
 }
 
 interface PageProps {
-  params: {
+  params: Promise<{
     page: string;
-  };
+  }>;
 }
 
-export default function Page({ params }: PageProps) {
+export default function Page(props: PageProps) {
+  const params = use(props.params);
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -197,10 +199,12 @@ export default function Page({ params }: PageProps) {
             {movies.map((movie) => (
               <Link key={movie._id} href={`/movie/${movie._id}`} className="block group">
                 <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-lg bg-gray-800">
-                  <img
+                  <Image
                     src={movie.image}
                     alt={movie.name}
-                    className="absolute h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16.6vw"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                   />
                 </div>
