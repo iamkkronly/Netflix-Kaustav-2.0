@@ -78,6 +78,70 @@ export default function Page({ params }: PageProps) {
     }
   }, [fetchData, searchQuery]);
 
+  useEffect(() => {
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(swReg => {
+          console.log('Service Worker is registered', swReg);
+          // By moving the subscription logic inside the .then,
+          // we ensure it only runs after a successful registration.
+          requestNotificationPermission(swReg);
+        })
+        .catch(error => {
+          console.error('Service Worker Error', error);
+        });
+    }
+  }, []);
+
+  async function requestNotificationPermission(swReg: ServiceWorkerRegistration) {
+    const permission = await window.Notification.requestPermission();
+    if (permission === 'granted') {
+      console.log('Notification permission granted.');
+      // Now, subscribe the user
+      subscribeUserToPush(swReg);
+    } else {
+      console.log('Unable to get permission to notify.');
+    }
+  }
+
+  function urlBase64ToUint8Array(base64String: string) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  async function subscribeUserToPush(swReg: ServiceWorkerRegistration) {
+    const applicationServerKey = urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!);
+    try {
+        const subscription = await swReg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: applicationServerKey
+        });
+
+        console.log('User is subscribed:', subscription);
+
+        // Send subscription to the backend
+        await fetch('/api/subscribe', {
+            method: 'POST',
+            body: JSON.stringify(subscription),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    } catch (error) {
+        console.error('Failed to subscribe the user: ', error);
+    }
+  }
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchInputValue.trim()) {

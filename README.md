@@ -1,5 +1,29 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Push Notifications Setup
+
+This project uses web push notifications to send updates to users. To get this feature working locally, you'll need to generate VAPID keys and set them up as environment variables.
+
+1.  **Install web-push globally:**
+    ```bash
+    npm install -g web-push
+    ```
+
+2.  **Generate VAPID keys:**
+    Run the following command to generate your VAPID keys:
+    ```bash
+    web-push generate-vapid-keys
+    ```
+    This will output a public and a private key.
+
+3.  **Set up your environment variables:**
+    Create a new file named `.env.local` in the root of the project and add the following content, replacing the placeholder values with your generated keys and your email address:
+    ```
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY=your_public_key_here
+    VAPID_PRIVATE_KEY=your_private_key_here
+    VAPID_MAILTO=mailto:your_email@example.com
+    ```
+
 ## Getting Started
 
 First, run the development server:

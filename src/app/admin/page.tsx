@@ -30,6 +30,9 @@ export default function AdminPage() {
   const [link1080p, setLink1080p] = useState('');
 
   const [message, setMessage] = useState('');
+  const [notificationTitle, setNotificationTitle] = useState('');
+  const [notificationBody, setNotificationBody] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
 
   // Search and Pagination state
   const [searchQuery, setSearchQuery] = useState('');
@@ -165,6 +168,26 @@ export default function AdminPage() {
       setAdminCurrentPage(1);
   }
 
+  const handleNotificationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setNotificationMessage('');
+
+    const res = await fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: notificationTitle, body: notificationBody }),
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      setNotificationMessage('Notification sent successfully!');
+      setNotificationTitle('');
+      setNotificationBody('');
+    } else {
+      setNotificationMessage(`Error: ${data.message}`);
+    }
+  };
+
   if (isLoading && !isAuthenticated) {
     return <div className="flex min-h-screen items-center justify-center bg-gray-900 text-white">Loading...</div>;
   }
@@ -209,6 +232,33 @@ export default function AdminPage() {
             <div className="mt-8 flex items-center justify-center"><button onClick={() => handleAdminPageChange(adminCurrentPage - 1)} disabled={adminCurrentPage <= 1} className="mx-1 rounded-md bg-red-600 px-4 py-2 text-sm font-bold text-white disabled:bg-gray-600">Previous</button><span className="px-4 py-2 text-sm">Page {adminCurrentPage} of {adminTotalPages}</span><button onClick={() => handleAdminPageChange(adminCurrentPage + 1)} disabled={adminCurrentPage >= adminTotalPages} className="mx-1 rounded-md bg-red-600 px-4 py-2 text-sm font-bold text-white disabled:bg-gray-600">Next</button></div>
           )}
         </div>
+
+        <form onSubmit={handleNotificationSubmit} className="mt-8 rounded-lg bg-gray-800 p-6 shadow-xl">
+          <h2 className="mb-6 text-center text-2xl font-bold sm:text-3xl">Send Notification</h2>
+          {notificationMessage && <p className="mb-4 text-center text-green-400">{notificationMessage}</p>}
+          <div className="mb-4">
+            <input
+              type="text"
+              value={notificationTitle}
+              onChange={(e) => setNotificationTitle(e.target.value)}
+              placeholder="Notification Title"
+              required
+              className="w-full rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+            />
+          </div>
+          <div className="mb-6">
+            <textarea
+              value={notificationBody}
+              onChange={(e) => setNotificationBody(e.target.value)}
+              placeholder="Notification Body"
+              required
+              className="w-full rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+            />
+          </div>
+          <button type="submit" className="w-full rounded-md bg-green-600 px-4 py-3 font-bold text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+            Send Notification to All Users
+          </button>
+        </form>
       </div>
     </div>
   );
