@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
 
 interface Movie {
   _id: string;
@@ -62,7 +63,13 @@ export default function MovieDetailsPage() {
       <div className="mx-auto max-w-4xl">
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-1/3">
-            <img src={movie.image} alt={movie.name} className="w-full h-auto rounded-lg shadow-lg" />
+            <Image
+              src={movie.image}
+              alt={movie.name}
+              width={500}
+              height={750}
+              className="w-full h-auto rounded-lg shadow-lg"
+            />
           </div>
           <div className="md:w-2/3">
             <h1 className="text-4xl font-bold mb-4">{movie.name}</h1>
