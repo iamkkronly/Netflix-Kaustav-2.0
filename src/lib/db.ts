@@ -12,7 +12,20 @@ declare global {
   var mongoose: MongooseCache;
 }
 
-const MONGODB_URI = "mongodb+srv://g36plmn_db_user:gnQnhSzenkQ3gtYn@cluster0.aefevza.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const MONGODB_URIS = [
+  "mongodb+srv://g36plmn_db_user:gnQnhSzenkQ3gtYn@cluster0.aefevza.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+  "mongodb+srv://l6yml41j_db_user:2m5HFR6CTdSb46ck@cluster0.nztdqdr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+  "mongodb+srv://7afcwd6_db_user:sOthaH9f53BDRBoj@cluster0.m9d2zcy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+];
+
+/**
+ * Selects a random MongoDB URI from the list.
+ * @returns {string} A randomly selected MongoDB URI.
+ */
+function getRandomUri(): string {
+  const randomIndex = Math.floor(Math.random() * MONGODB_URIS.length);
+  return MONGODB_URIS[randomIndex];
+}
 
 /**
  * Global is used here to maintain a cached connection across hot reloads
@@ -35,7 +48,9 @@ async function dbConnect() {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+    const selectedUri = getRandomUri();
+
+    cached.promise = mongoose.connect(selectedUri, opts).then((mongoose) => {
       return mongoose;
     });
   }

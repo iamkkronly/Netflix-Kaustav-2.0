@@ -1,9 +1,7 @@
 {
-  "name": "cloudray",
+  "name": "movie-app",
   "version": "0.1.0",
   "private": true,
-  "description": "Unlimited Telegram Cloud Storage Platform",
-  "author": "Kaustav Ray",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
@@ -11,19 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@grammyjs/storage-mongodb": "^2.5.1",
-    "@types/formidable": "^3.4.5",
     "cookie": "^1.0.2",
-    "formidable": "^3.5.4",
     "fuse.js": "^7.1.0",
-    "grammy": "^1.38.3",
     "jose": "^6.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.2",
     "next": "15.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "telegram": "^2.26.22",
     "web-push": "^3.6.7"
   },
   "devDependencies": {
